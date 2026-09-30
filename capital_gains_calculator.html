@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital Gains & Indexation Calculator | Finance Act Compliant</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons & Chart.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        html.light body { background-color: #f8fafc; color: #0f172a; }
+        html.light .card-panel { background-color: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+        html.light .card-subpanel { background-color: #f1f5f9; border: 1px solid #cbd5e1; }
+        html.light .form-input-custom { background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; }
+        html.light .form-input-custom:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+
+        html.light .hero-tax-card {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1d4ed8 100%);
+            border: 1px solid #60a5fa;
+            box-shadow: 0 12px 30px -5px rgba(37, 99, 235, 0.35);
+            color: #ffffff;
+        }
+        html.light .hero-tax-title { color: #dbeafe !important; }
+        html.light .hero-tax-amount { color: #ffffff !important; text-shadow: 0 2px 10px rgba(0,0,0,0.25); }
+        html.light .hero-tax-footer { color: #bfdbfe !important; }
+
+        html.dark body { background-color: #0b0f19; color: #f8fafc; }
+        html.dark .card-panel { background-color: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        html.dark .card-subpanel { background-color: rgba(2, 6, 23, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); }
+        html.dark .form-input-custom { background-color: #020617; border: 1px solid #334155; color: #f8fafc; }
+
+        html.dark .hero-tax-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1e3a8a 100%);
+            border: 1px solid #6366f1;
+            box-shadow: 0 12px 35px -5px rgba(49, 46, 129, 0.6);
+            color: #ffffff;
+        }
+        html.dark .hero-tax-title { color: #c7d2fe !important; }
+        html.dark .hero-tax-amount { color: #38bdf8 !important; text-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+        html.dark .hero-tax-footer { color: #a5b4fc !important; }
+
+        .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 700; }
+        html.dark .tab-btn.active { border-bottom: 2px solid #38bdf8; color: #38bdf8; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .card-panel { background: white !important; border: 1px solid #cbd5e1 !important; box-shadow: none !important; color: black !important; }
+            .hero-tax-card { background: #1e3a8a !important; color: white !important; }
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col antialiased">
+
+    <header class="no-print border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md shadow-blue-500/20">
+                    <i class="fa-solid fa-scale-balanced text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                        Capital Gains & Indexation Suite
+                    </h1>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 font-semibold">
+                        Income-tax Act & Finance Act Compliant • ICAI Adv ITT Edition
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleTheme()" class="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center gap-2 shadow-sm">
+                    <i id="themeIcon" class="fa-solid fa-moon text-amber-500"></i>
+                    <span id="themeText">Dark Mode</span>
+                </button>
+
+                <button onclick="exportWordReport()" class="px-3.5 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition flex items-center gap-2 shadow-md shadow-blue-500/20">
+                    <i class="fa-solid fa-file-word text-sm"></i>
+                    <span>Export Audit Report</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-6 overflow-x-auto">
+            <button onclick="switchTab('singleCalc')" id="tab-singleCalc" class="tab-btn active py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 transition flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-calculator"></i> Transaction Calculator
+            </button>
+            <button onclick="switchTab('portfolioCalc')" id="tab-portfolioCalc" class="tab-btn py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 transition flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-layer-group"></i> Multi-Asset Portfolio Tracker
+            </button>
+            <button onclick="switchTab('lossRules')" id="tab-lossRules" class="tab-btn py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 transition flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-arrows-split-up-and-left"></i> Set-Off & Carry Forward Matrix
+            </button>
+            <button onclick="switchTab('ciiReference')" id="tab-ciiReference" class="tab-btn py-3 text-xs font-semibold text-slate-600 dark:text-slate-400 transition flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-table"></i> Statutory CII Master Table
+            </button>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Statutory Info Banner -->
+        <div class="no-print bg-blue-50 dark:bg-slate-900/80 border border-blue-200 dark:border-blue-800/60 rounded-2xl p-4 flex items-start gap-4 shadow-sm">
+            <div class="p-2.5 bg-blue-600 text-white rounded-xl mt-0.5 shrink-0 shadow-sm">
+                <i class="fa-solid fa-gavel text-base"></i>
+            </div>
+            <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                <span class="font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider block mb-0.5">Statutory Income Tax Provisions:</span>
+                <span>• <strong>Immovable Property (Real Estate)</strong> acquired prior to <strong>July 23, 2024</strong> enjoys statutory grandfathering options for Resident Individuals/HUFs (20% + CII Indexation vs 12.5% Flat)[cite: 1].</span><br>
+                <span>• <strong>Listed Equity / Equity MFs:</strong> Annual exemption of ₹1,25,000 under Sec 112A @ 12.5% LTCG; Short-term @ 20% (Sec 111A)[cite: 1]. Sec 112A grandfathering formula auto-applied for pre-2018 assets.</span><br>
+                <span>• <strong>Debt Mutual Funds:</strong> Acquired on/after April 1, 2023 taxed at slab rates (Sec 50AA)[cite: 1].</span>
+            </div>
+        </div>
+
+        <div id="view-singleCalc" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Inputs Column (7 Cols) -->
+                <div class="lg:col-span-7 space-y-6">
+
+                    <!-- Section 1: Asset Type & Horizon -->
+                    <div class="card-panel p-5 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] flex items-center justify-center font-bold">1</span>
+                                Asset Category & Holding Horizon
+                            </h2>
+                            <span class="text-xs font-bold text-blue-600 dark:text-blue-400" id="holdingPeriodText">Holding Horizon: --</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Asset Classification</label>
+                                <select id="assetCategory" onchange="onAssetTypeChange()" class="form-input-custom w-full rounded-xl px-3.5 py-2.5 text-xs font-medium focus:outline-none">
+                                    <option value="real_estate">Immovable Property (Land & Building)</option>
+                                    <option value="listed_equity">Listed Equity Shares / Equity Mutual Funds</option>
+                                    <option value="debt_mf">Debt Mutual Funds / Market Linked Debentures</option>
+                                    <option value="unlisted_equity">Unlisted Shares / Foreign Shares</option>
+                                    <option value="gold_physical">Gold / Physical Assets / Jewellery</option>
+                                    <option value="bonds_debentures">Bonds / Debentures (Non-Indexed)</option>
+                                </select>
+                            </div>
+
+                            <!-- Real Estate Specific Rules -->
+                            <div id="realEstateFields" class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 card-subpanel p-3.5 rounded-xl">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Taxpayer Category</label>
+                                    <select id="assesseeCategory" onchange="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-3 py-2 text-xs">
+                                        <option value="res_ind_huf">Resident Individual / HUF</option>
+                                        <option value="non_resident">Non-Resident / Foreign Entity</option>
+                                        <option value="domestic_company">Domestic Company / Firm</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Acquisition Cut-off Date</label>
+                                    <select id="acquisitionCutoff" onchange="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-3 py-2 text-xs">
+                                        <option value="before_july23">BEFORE July 23, 2024 (Dual Regime Grandfathering)</option>
+                                        <option value="after_july23">ON or AFTER July 23, 2024 (12.5% Flat)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Debt MF Cutoff Field -->
+                            <div id="debtMfFields" class="sm:col-span-2 card-subpanel p-3.5 rounded-xl hidden">
+                                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Acquisition Date (Debt MF Sec 50AA)</label>
+                                <select id="debtMfAcquisitionDate" onchange="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-3 py-2 text-xs">
+                                    <option value="on_after_apr2023">Acquired ON or AFTER April 1, 2023 (Taxed at Slab Rates)</option>
+                                    <option value="before_apr2023">Acquired BEFORE April 1, 2023 (Eligible for 12.5% LTCG if held &gt;24M)</option>
+                                </select>
+                            </div>
+
+                            <!-- FY Selectors -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">FY of Acquisition</label>
+                                <select id="purchaseFY" onchange="onAssetTypeChange()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs"></select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">FY of Transfer / Sale</label>
+                                <select id="saleFY" onchange="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Consideration & Expenses -->
+                    <div class="card-panel p-5 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] flex items-center justify-center font-bold">2</span>
+                                Consideration, Valuation & Expenses
+                            </h2>
+                        </div>
+
+                        <!-- Pre-2001 Section 55 Box -->
+                        <div id="pre2001Box" class="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-500/30 p-3.5 rounded-xl space-y-3 hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> Pre-2001 Asset Rules (Section 55)
+                                </span>
+                                <span class="text-[10px] bg-amber-200 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 px-2 py-0.5 rounded font-bold">CII Base = 100</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300">Actual Cost (₹)</label>
+                                    <input type="number" id="pre2001ActualCost" value="200000" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-2.5 py-1.5 text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300">FMV on 01.04.2001 (₹)</label>
+                                    <input type="number" id="pre2001FMV" value="800000" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-2.5 py-1.5 text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300">Stamp Duty Value 01.04.2001 (₹)</label>
+                                    <input type="number" id="pre2001SDV" value="800000" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-2.5 py-1.5 text-xs">
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-600 dark:text-slate-400 italic">Statutory Rule: Acquisition Cost = Higher of Actual Cost or FMV (FMV capped at Stamp Duty Value as on 01.04.2001)[cite: 1].</p>
+                        </div>
+
+                        <!-- Section 112A Equity Box -->
+                        <div id="equity112ABox" class="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-500/30 p-3.5 rounded-xl space-y-3 hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-shield-halved"></i> Sec 112A Grandfathering (Pre-31 Jan 2018)
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300">FMV per share on 31-Jan-2018 (₹)</label>
+                                    <input type="number" id="equityJan31FMV" value="0" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-2.5 py-1.5 text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300">Total Shares Transferred</label>
+                                    <input type="number" id="equityQuantity" value="100" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-lg px-2.5 py-1.5 text-xs">
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-indigo-700 dark:text-indigo-300 italic">Formula: Cost = Max(Actual Cost, Min(FMV on 31-Jan-2018, Sale Consideration))</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Value Consideration / Sale Price (₹)</label>
+                                <input type="number" id="salePrice" value="15000000" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-blue-600 dark:text-blue-400">
+                            </div>
+
+                            <div id="standardPurchaseCostWrapper">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Acquisition Price / Purchase Cost (₹)</label>
+                                <input type="number" id="purchasePrice" value="3500000" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2.5 text-xs font-medium">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Brokerage & Transfer Expenses (₹)</label>
+                                <input type="number" id="transferExpenses" value="50000" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2.5 text-xs font-medium">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Cost of Improvement (₹)</label>
+                                <input type="number" id="costOfImprovement" value="0" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2.5 text-xs font-medium">
+                            </div>
+
+                            <div id="improvementFYWrapper" class="sm:col-span-2 hidden">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">FY of Improvement</label>
+                                <select id="improvementFY" onchange="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Exemptions Simulator -->
+                    <div class="card-panel p-5 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] flex items-center justify-center font-bold">3</span>
+                                Tax Exemption Engine (Sec 54, 54F, 54EC, CGAS)
+                            </h2>
+                            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                <i class="fa-solid fa-piggy-bank"></i> Tax Savings
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Section 54 Investment (Residential) (₹)</label>
+                                <input type="number" id="sec54Investment" value="0" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs">
+                                <span class="text-[10px] text-slate-500">Statutory Cap: ₹10 Crore[cite: 1]</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Section 54F Investment (Other Asset) (₹)</label>
+                                <input type="number" id="sec54FInvestment" value="0" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs">
+                                <span class="text-[10px] text-slate-500">Pro-rata Formula Applied[cite: 1]</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Section 54EC Capital Gain Bonds (₹)</label>
+                                <input type="number" id="sec54ECInvestment" value="0" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs">
+                                <span class="text-[10px] text-slate-500">Maximum Limit: ₹50,00,000[cite: 1]</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">CGAS Account Deposit (₹)</label>
+                                <input type="number" id="cgasDeposit" value="0" oninput="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs">
+                                <span class="text-[10px] text-slate-500">Deposited prior to ITR due date[cite: 1]</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-200 dark:border-slate-800 pt-3.5">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Assessee Taxable Income Bracket</label>
+                                <select id="surchargeBracket" onchange="runSingleCalculation()" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs">
+                                    <option value="0">Up to ₹50 Lakhs (Surcharge 0%)[cite: 1]</option>
+                                    <option value="10">₹50 Lakhs to ₹1 Crore (Surcharge 10%)[cite: 1]</option>
+                                    <option value="15" selected>₹1 Cr to ₹2 Cr (Surcharge 15%)[cite: 1]</option>
+                                    <option value="25">Above ₹2 Crore (Surcharge 25% - Slab Assets)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Health & Education Cess</label>
+                                <input type="text" disabled value="4% Mandatory Rate" class="form-input-custom w-full rounded-xl px-3.5 py-2 text-xs bg-slate-100 dark:bg-slate-900 cursor-not-allowed">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="lg:col-span-5 space-y-6">
+
+                    <!-- Executive Summary Panel -->
+                    <div class="card-panel p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">EXECUTIVE TAX STATEMENT</span>
+                            <span id="holdingNatureBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">
+                                Long-Term Capital Gain (LTCG)
+                            </span>
+                        </div>
+
+                        <div class="hero-tax-card rounded-2xl p-5 mb-5 transition-all duration-300">
+                            <div class="text-xs font-bold uppercase tracking-wider hero-tax-title mb-1.5">
+                                Net Capital Gains Tax Liability
+                            </div>
+                            <div class="text-3xl sm:text-4xl font-extrabold hero-tax-amount tracking-tight mb-2" id="finalTaxDisplay">
+                                ₹0
+                            </div>
+                            <div class="text-[11px] font-medium hero-tax-footer flex justify-between items-center border-t border-white/20 dark:border-indigo-400/30 pt-2.5 mt-2">
+                                <span>Includes Surcharge + 4% Cess</span>
+                                <span id="effectiveRateDisplay" class="font-extrabold text-emerald-300 dark:text-emerald-400 bg-black/20 dark:bg-black/30 px-2 py-0.5 rounded-md">Effective Rate: 0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Statement Breakdown Ledger -->
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                                <span class="text-slate-600 dark:text-slate-400">Gross Sale Consideration:</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100" id="ledgerGrossSale">₹0</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                                <span class="text-slate-600 dark:text-slate-400">Less: Transfer Expenses:</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100" id="ledgerTransferExp">₹0</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 px-2 rounded">
+                                <span class="text-slate-800 dark:text-slate-200 font-bold">Net Sale Consideration:</span>
+                                <span class="font-extrabold text-slate-900 dark:text-slate-100" id="ledgerNetConsideration">₹0</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800">
+                                <span class="text-slate-600 dark:text-slate-400" id="ledgerCostLabel">Cost of Acquisition:</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100" id="ledgerAcquisitionCost">₹0</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800" id="ledgerImprovementRow">
+                                <span class="text-slate-600 dark:text-slate-400" id="ledgerImprovementLabel">Cost of Improvement:</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100" id="ledgerImprovementCost">₹0</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-200 dark:border-slate-800 bg-blue-50 dark:bg-blue-950/20 px-2 rounded">
+                                <span class="text-blue-900 dark:text-blue-300 font-bold">Gross Capital Gain:</span>
+                                <span class="font-extrabold text-blue-700 dark:text-blue-400" id="ledgerGrossGain">₹0</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-200 dark:border-slate-800 text-emerald-700 dark:text-emerald-400 font-medium">
+                                <span>Less: Total Exemptions (Sec 54/54F/54EC):</span>
+                                <span class="font-bold" id="ledgerTotalExemptions">₹0</span>
+                            </div>
+                            <div class="flex justify-between py-2.5 text-xs font-bold bg-slate-100 dark:bg-slate-900 px-3 rounded-xl border border-slate-200 dark:border-slate-800 mt-2">
+                                <span class="text-slate-900 dark:text-slate-100">Net Taxable Capital Gain:</span>
+                                <span class="text-blue-600 dark:text-blue-400" id="ledgerTaxableGain">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dual Regime Choice Matrix Card -->
+                    <div id="dualRegimeCard" class="card-panel p-5 rounded-2xl border-2 border-blue-500/50 shadow-xl bg-gradient-to-b from-blue-50/50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-blue-950/30 hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xs font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-scale-unbalanced text-blue-600"></i>
+                                Pre-July 2024 Dual-Regime Choice
+                            </h3>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">Sec 48 Grandfathering</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-3 text-center">
+                            <div id="oldRegimeBox" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/70 shadow-sm">
+                                <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Old Regime (20% + CII)</div>
+                                <div class="text-base font-extrabold text-slate-900 dark:text-slate-100" id="oldRegimeTaxText">₹0</div>
+                                <div class="text-[9px] text-slate-500 mt-1" id="oldRegimeIndexedCostText">Indexed Cost: ₹0</div>
+                            </div>
+                            <div id="newRegimeBox" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/70 shadow-sm">
+                                <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">New Regime (12.5% Flat)</div>
+                                <div class="text-base font-extrabold text-slate-900 dark:text-slate-100" id="newRegimeTaxText">₹0</div>
+                                <div class="text-[9px] text-slate-500 mt-1" id="newRegimeGainText">Plain Gain: ₹0</div>
+                            </div>
+                        </div>
+
+                        <div id="recommendationBanner" class="p-3 rounded-xl text-xs font-bold bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-300 flex items-center gap-2.5 shadow-sm">
+                            <i class="fa-solid fa-circle-check text-base text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                            <span id="recommendationText">Evaluating optimal statutory route...</span>
+                        </div>
+                    </div>
+
+                    <!-- Doughnut Breakdown Visualizer -->
+                    <div class="card-panel p-5 rounded-2xl no-print shadow-md">
+                        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-3">Capital Allocation Breakdown</h3>
+                        <div class="h-52 relative">
+                            <canvas id="singleCalcChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div id="view-portfolioCalc" class="space-y-6 hidden">
+            <div class="card-panel p-6 rounded-2xl shadow-xl space-y-5">
+                <div class="flex flex-wrap justify-between items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Multi-Asset Portfolio Tax Consolidation Ledger</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Consolidate multiple transactions across real estate, equity, and debt assets for tax filing[cite: 1].</p>
+                    </div>
+                    <button onclick="addPortfolioRow()" class="px-3.5 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition flex items-center gap-1.5 shadow-md shadow-blue-500/20">
+                        <i class="fa-solid fa-plus"></i> Add Transaction Entry
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold bg-slate-50 dark:bg-slate-900/60">
+                                <th class="p-3">Asset Description</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Purchase FY</th>
+                                <th class="p-3">Sale FY</th>
+                                <th class="p-3">Purchase Cost (₹)</th>
+                                <th class="p-3">Sale Consideration (₹)</th>
+                                <th class="p-3">Holding</th>
+                                <th class="p-3">Estimated Tax (₹)</th>
+                                <th class="p-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portfolioTableBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-slate-900 text-white p-4.5 rounded-xl flex flex-wrap justify-between items-center gap-4 shadow-lg">
+                    <div class="space-y-0.5">
+                        <div class="text-xs text-slate-400 font-medium">Total Portfolio Net Capital Gains Tax Liability</div>
+                        <div class="text-2xl font-black text-blue-400" id="portfolioTotalTax">₹0</div>
+                    </div>
+                    <button onclick="calculatePortfolioTotal()" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition shadow">
+                        Recalculate Ledger Totals
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-lossRules" class="space-y-6 hidden">
+            <div class="card-panel p-6 rounded-2xl shadow-xl space-y-6">
+                <div>
+                    <h2 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Capital Loss Set-Off & Carry Forward Rules Evaluator</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Simulate statutory loss adjustment rules under Section 70 and Section 74 of the Income-tax Act[cite: 1].</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 card-subpanel p-4 rounded-xl">
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase">Current FY Capital Gains / (Losses)</h3>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Short-Term Capital Gain / (Loss) [STCG] (₹)</label>
+                            <input type="number" id="lossInputSTCG" value="-150000" oninput="runLossSimulator()" class="form-input-custom w-full rounded-lg px-3 py-2 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Long-Term Capital Gain / (Loss) [LTCG] (₹)</label>
+                            <input type="number" id="lossInputLTCG" value="500000" oninput="runLossSimulator()" class="form-input-custom w-full rounded-lg px-3 py-2 text-xs">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">Brought Forward Losses (Prior AYs)</h3>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">B/F Short-Term Capital Loss (STCL) (₹)</label>
+                            <input type="number" id="lossInputBFSTCL" value="50000" oninput="runLossSimulator()" class="form-input-custom w-full rounded-lg px-3 py-2 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">B/F Long-Term Capital Loss (LTCL) (₹)</label>
+                            <input type="number" id="lossInputBFLTCL" value="0" oninput="runLossSimulator()" class="form-input-custom w-full rounded-lg px-3 py-2 text-xs">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-panel p-4.5 rounded-2xl space-y-3">
+                    <h3 class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Statutory Set-Off Results</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                        <div class="p-3.5 card-subpanel rounded-xl">
+                            <span class="text-slate-500 dark:text-slate-400 block mb-1">Net Taxable STCG</span>
+                            <span class="text-lg font-bold text-slate-900 dark:text-white" id="resTaxableSTCG">₹0</span>
+                        </div>
+                        <div class="p-3.5 card-subpanel rounded-xl">
+                            <span class="text-slate-500 dark:text-slate-400 block mb-1">Net Taxable LTCG</span>
+                            <span class="text-lg font-bold text-slate-900 dark:text-white" id="resTaxableLTCG">₹0</span>
+                        </div>
+                        <div class="p-3.5 card-subpanel rounded-xl">
+                            <span class="text-slate-500 dark:text-slate-400 block mb-1">Loss Carried Forward (Next AY)</span>
+                            <span class="text-lg font-bold text-amber-600 dark:text-amber-400" id="resCarryForwardLoss">₹0</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-500/20 rounded-xl text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
+                        <p><strong>Rule 1:</strong> Current STCL is set off against Current STCG, then Current LTCG[cite: 1].</p>
+                        <p><strong>Rule 2:</strong> Current LTCL can ONLY be set off against Current LTCG[cite: 1].</p>
+                        <p><strong>Rule 3:</strong> B/F LTCL reduces remaining LTCG. B/F STCL reduces remaining STCG, then LTCG[cite: 1].</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-ciiReference" class="space-y-6 hidden">
+            <div class="card-panel p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Cost Inflation Index (CII) Master Table</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Statutory Notifications under Section 48 (Base Year 2001-02 = 100)[cite: 1]</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-xs" id="ciiMasterGrid">
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="no-print border-t border-slate-200 dark:border-slate-800 py-4 text-center text-xs text-slate-500 bg-white dark:bg-slate-950">
+        <p>Capital Gains Suite • ICAI Advanced ITT Project Presentation • Income-tax Act Compliant[cite: 1]</p>
+    </footer>
+
+    <script>
+        const ciiMaster = {
+            "2001-02": 100, "2002-03": 105, "2003-04": 109, "2004-05": 113,
+            "2005-06": 117, "2006-07": 122, "2007-08": 129, "2008-09": 137,
+            "2009-10": 148, "2010-11": 167, "2011-12": 184, "2012-13": 200,
+            "2013-14": 220, "2014-15": 240, "2015-16": 254, "2016-17": 264,
+            "2017-18": 272, "2018-19": 280, "2019-20": 289, "2020-21": 301,
+            "2021-22": 317, "2022-23": 331, "2023-24": 348, "2024-25": 363,
+            "2025-26": 376, "2026-27": 384
+        };
+
+        let singleChart = null;
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+
+            if (html.classList.contains('light')) {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-amber-400';
+                text.textContent = 'Light Mode';
+            } else {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-moon text-amber-500';
+                text.textContent = 'Dark Mode';
+            }
+            if (singleChart) singleChart.update();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initDropdowns();
+            renderCiiGrid();
+            initChart();
+            initPortfolioDefault();
+            onAssetTypeChange();
+            runLossSimulator();
+        });
+
+        function switchTab(tabId) {
+            ['singleCalc', 'portfolioCalc', 'lossRules', 'ciiReference'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        function initDropdowns() {
+            const pFY = document.getElementById('purchaseFY');
+            const sFY = document.getElementById('saleFY');
+            const iFY = document.getElementById('improvementFY');
+
+            pFY.innerHTML = ''; sFY.innerHTML = ''; iFY.innerHTML = '';
+
+            Object.keys(ciiMaster).forEach(fy => {
+                const text = `FY ${fy} (CII: ${ciiMaster[fy]})`;
+                pFY.appendChild(new Option(text, fy));
+                sFY.appendChild(new Option(text, fy));
+                iFY.appendChild(new Option(text, fy));
+            });
+
+            pFY.value = "2010-11";
+            sFY.value = "2026-27";
+            iFY.value = "2015-16";
+        }
+
+        function renderCiiGrid() {
+            const grid = document.getElementById('ciiMasterGrid');
+            grid.innerHTML = '';
+            for (const [fy, cii] of Object.entries(ciiMaster)) {
+                const box = document.createElement('div');
+                box.className = 'card-subpanel p-2.5 rounded-xl text-center';
+                box.innerHTML = `<div class="text-slate-500 dark:text-slate-400 text-[10px]">FY ${fy}</div><div class="text-blue-600 dark:text-blue-400 font-extrabold text-sm">${cii}</div>`;
+                grid.appendChild(box);
+            }
+        }
+
+        function onAssetTypeChange() {
+            const assetCat = document.getElementById('assetCategory').value;
+            const pFY = document.getElementById('purchaseFY').value;
+
+            document.getElementById('realEstateFields').classList.toggle('hidden', assetCat !== 'real_estate');
+            document.getElementById('debtMfFields').classList.toggle('hidden', assetCat !== 'debt_mf');
+            document.getElementById('pre2001Box').classList.toggle('hidden', pFY !== '2001-02');
+            document.getElementById('equity112ABox').classList.toggle('hidden', assetCat !== 'listed_equity');
+
+            runSingleCalculation();
+        }
+
+        function runSingleCalculation() {
+            const assetCat = document.getElementById('assetCategory').value;
+            const assesseeCat = document.getElementById('assesseeCategory').value;
+            const cutoff = document.getElementById('acquisitionCutoff').value;
+            const debtMfCutoff = document.getElementById('debtMfAcquisitionDate').value;
+
+            const pFY = document.getElementById('purchaseFY').value;
+            const sFY = document.getElementById('saleFY').value;
+            const isPre2001 = pFY === "2001-02";
+
+            let rawPurchaseCost = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            if (isPre2001) {
+                const act = parseFloat(document.getElementById('pre2001ActualCost').value) || 0;
+                const fmv = parseFloat(document.getElementById('pre2001FMV').value) || 0;
+                const sdv = parseFloat(document.getElementById('pre2001SDV').value) || 0;
+                const cappedFMV = Math.min(fmv, sdv);
+                rawPurchaseCost = Math.max(act, cappedFMV);
+            }
+
+            const salePrice = parseFloat(document.getElementById('salePrice').value) || 0;
+            const transferExp = parseFloat(document.getElementById('transferExpenses').value) || 0;
+            const costOfImp = parseFloat(document.getElementById('costOfImprovement').value) || 0;
+            const iFY = document.getElementById('improvementFY').value;
+
+            document.getElementById('improvementFYWrapper').classList.toggle('hidden', costOfImp <= 0);
+
+            const netConsideration = Math.max(0, salePrice - transferExp);
+
+            const pYear = parseInt(pFY.split('-')[0]);
+            const sYear = parseInt(sFY.split('-')[0]);
+            const holdingYears = Math.max(0, sYear - pYear);
+
+            let ltcgThresholdYears = 2;
+            if (assetCat === 'listed_equity') ltcgThresholdYears = 1;
+
+            const isLTCG = holdingYears >= ltcgThresholdYears;
+
+            const badge = document.getElementById('holdingNatureBadge');
+            document.getElementById('holdingPeriodText').textContent = `Holding Horizon: ~${holdingYears} Year(s)`;
+
+            if (isLTCG) {
+                badge.textContent = "Long-Term Capital Gain (LTCG)";
+                badge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30";
+            } else {
+                badge.textContent = "Short-Term Capital Gain (STCG)";
+                badge.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30";
+            }
+
+            // Refactored Section 112A Grandfathering Calculation
+            if (assetCat === 'listed_equity' && isLTCG) {
+                const jan31FMV = parseFloat(document.getElementById('equityJan31FMV').value) || 0;
+                const qty = parseFloat(document.getElementById('equityQuantity').value) || 1;
+                if (jan31FMV > 0) {
+                    const totalFMV = jan31FMV * qty;
+                    const step1 = Math.min(totalFMV, netConsideration);
+                    rawPurchaseCost = Math.max(rawPurchaseCost, step1);
+                }
+            }
+
+            const pCII = ciiMaster[pFY] || 100;
+            const sCII = ciiMaster[sFY] || 384;
+            const iCII = ciiMaster[iFY] || 100;
+
+            let finalTax = 0;
+            let grossGain = 0;
+            let displayAcquisitionCost = rawPurchaseCost;
+            let displayImprovementCost = costOfImp;
+
+            let sec54 = parseFloat(document.getElementById('sec54Investment').value) || 0;
+            if (sec54 > 100000000) sec54 = 100000000;
+
+            let sec54EC = parseFloat(document.getElementById('sec54ECInvestment').value) || 0;
+            if (sec54EC > 5000000) sec54EC = 5000000;
+
+            let sec54F = parseFloat(document.getElementById('sec54FInvestment').value) || 0;
+            const cgas = parseFloat(document.getElementById('cgasDeposit').value) || 0;
+            const surchargeRate = parseFloat(document.getElementById('surchargeBracket').value) || 0;
+
+            const dualRegimeCard = document.getElementById('dualRegimeCard');
+
+            let baseExemptions = sec54 + sec54EC + cgas;
+
+            if (assetCat === 'real_estate' && cutoff === 'before_july23' && assesseeCat === 'res_ind_huf' && isLTCG) {
+                dualRegimeCard.classList.remove('hidden');
+
+                const indexedCost = rawPurchaseCost * (sCII / pCII);
+                const indexedImp = costOfImp * (sCII / iCII);
+                const oldGrossGain = Math.max(0, netConsideration - indexedCost - indexedImp);
+                
+                let old54FExemption = 0;
+                if (sec54F > 0 && netConsideration > 0) {
+                    old54FExemption = Math.min(oldGrossGain, (sec54F / netConsideration) * oldGrossGain);
+                }
+                const oldExemptions = Math.min(oldGrossGain, baseExemptions + old54FExemption);
+                const oldTaxableGain = Math.max(0, oldGrossGain - oldExemptions);
+                const oldSurcharge = Math.min(surchargeRate, 15);
+                const oldTax = oldTaxableGain * 0.20 * (1 + oldSurcharge/100) * 1.04;
+
+                const newGrossGain = Math.max(0, netConsideration - rawPurchaseCost - costOfImp);
+                let new54FExemption = 0;
+                if (sec54F > 0 && netConsideration > 0) {
+                    new54FExemption = Math.min(newGrossGain, (sec54F / netConsideration) * newGrossGain);
+                }
+                const newExemptions = Math.min(newGrossGain, baseExemptions + new54FExemption);
+                const newTaxableGain = Math.max(0, newGrossGain - newExemptions);
+                const newSurcharge = Math.min(surchargeRate, 15);
+                const newTax = newTaxableGain * 0.125 * (1 + newSurcharge/100) * 1.04;
+
+                document.getElementById('oldRegimeTaxText').textContent = formatINR(oldTax);
+                document.getElementById('oldRegimeIndexedCostText').textContent = `Indexed Cost: ${formatINR(indexedCost)}`;
+                document.getElementById('newRegimeTaxText').textContent = formatINR(newTax);
+                document.getElementById('newRegimeGainText').textContent = `Plain Gain: ${formatINR(newGrossGain)}`;
+
+                const recText = document.getElementById('recommendationText');
+                if (oldTax <= newTax) {
+                    finalTax = oldTax;
+                    grossGain = oldGrossGain;
+                    displayAcquisitionCost = indexedCost;
+                    displayImprovementCost = indexedImp;
+                    document.getElementById('ledgerCostLabel').textContent = "Indexed Acquisition Cost:";
+                    recText.textContent = `Optimal Route: Old Regime (20% + Indexation). Saves ${formatINR(newTax - oldTax)}!`;
+                } else {
+                    finalTax = newTax;
+                    grossGain = newGrossGain;
+                    displayAcquisitionCost = rawPurchaseCost;
+                    displayImprovementCost = costOfImp;
+                    document.getElementById('ledgerCostLabel').textContent = "Acquisition Cost (Flat):";
+                    recText.textContent = `Optimal Route: New Regime (12.5% Flat). Saves ${formatINR(oldTax - newTax)}!`;
+                }
+            } else {
+                dualRegimeCard.classList.add('hidden');
+                document.getElementById('ledgerCostLabel').textContent = "Cost of Acquisition:";
+
+                grossGain = Math.max(0, netConsideration - rawPurchaseCost - costOfImp);
+                
+                let totalExemptions = baseExemptions;
+                if (sec54F > 0 && netConsideration > 0) {
+                    const proRataExemption = Math.min(grossGain, (sec54F / netConsideration) * grossGain);
+                    totalExemptions += proRataExemption;
+                }
+                totalExemptions = Math.min(grossGain, totalExemptions);
+                const netTaxableGain = Math.max(0, grossGain - totalExemptions);
+
+                if (assetCat === 'listed_equity') {
+                    const effSurcharge = Math.min(surchargeRate, 15); // Capped at 15% statutory max for Sec 112A
+                    if (isLTCG) {
+                        const taxable112A = Math.max(0, netTaxableGain - 125000);
+                        finalTax = taxable112A * 0.125 * (1 + effSurcharge/100) * 1.04;
+                    } else {
+                        finalTax = netTaxableGain * 0.20 * (1 + effSurcharge/100) * 1.04;
+                    }
+                } else if (assetCat === 'debt_mf' && debtMfCutoff === 'on_after_apr2023') {
+                    finalTax = netTaxableGain * 0.30 * (1 + surchargeRate/100) * 1.04;
+                } else {
+                    const effSurcharge = isLTCG ? Math.min(surchargeRate, 15) : surchargeRate;
+                    const rate = isLTCG ? 0.125 : 0.30;
+                    finalTax = netTaxableGain * rate * (1 + effSurcharge/100) * 1.04;
+                }
+            }
+
+            let computedExemptions = baseExemptions;
+            if (sec54F > 0 && netConsideration > 0) {
+                computedExemptions += Math.min(grossGain, (sec54F / netConsideration) * grossGain);
+            }
+            computedExemptions = Math.min(grossGain, computedExemptions);
+            const netTaxableGain = Math.max(0, grossGain - computedExemptions);
+
+            document.getElementById('finalTaxDisplay').textContent = formatINR(finalTax);
+            document.getElementById('ledgerGrossSale').textContent = formatINR(salePrice);
+            document.getElementById('ledgerTransferExp').textContent = formatINR(transferExp);
+            document.getElementById('ledgerNetConsideration').textContent = formatINR(netConsideration);
+            document.getElementById('ledgerAcquisitionCost').textContent = formatINR(displayAcquisitionCost);
+            document.getElementById('ledgerImprovementCost').textContent = formatINR(displayImprovementCost);
+            document.getElementById('ledgerGrossGain').textContent = formatINR(grossGain);
+            document.getElementById('ledgerTotalExemptions').textContent = formatINR(computedExemptions);
+            document.getElementById('ledgerTaxableGain').textContent = formatINR(netTaxableGain);
+
+            const effRate = salePrice > 0 ? ((finalTax / salePrice) * 100).toFixed(2) : 0;
+            document.getElementById('effectiveRateDisplay').textContent = `Effective Rate: ${effRate}%`;
+
+            updateChart(displayAcquisitionCost, netTaxableGain, computedExemptions, finalTax);
+        }
+
+        // Portfolio Tracker
+        let portfolioData = [
+            { id: 1, desc: "Residential Property - Mumbai", cat: "Real Estate", pFY: "2012-13", sFY: "2026-27", pCost: 4000000, sVal: 12000000, isLTCG: true, tax: 620000 },
+            { id: 2, desc: "Listed Equity Portfolio", cat: "Listed Equity", pFY: "2021-22", sFY: "2026-27", pCost: 1000000, sVal: 2200000, isLTCG: true, tax: 134375 }
+        ];
+
+        function initPortfolioDefault() {
+            renderPortfolioTable();
+        }
+
+        function renderPortfolioTable() {
+            const tbody = document.getElementById('portfolioTableBody');
+            tbody.innerHTML = '';
+
+            portfolioData.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">${item.desc}</td>
+                    <td class="p-3 text-slate-500 dark:text-slate-400">${item.cat}</td>
+                    <td class="p-3 text-slate-500 dark:text-slate-400">${item.pFY}</td>
+                    <td class="p-3 text-slate-500 dark:text-slate-400">${item.sFY}</td>
+                    <td class="p-3 text-slate-900 dark:text-slate-100">${formatINR(item.pCost)}</td>
+                    <td class="p-3 text-blue-600 dark:text-blue-400 font-bold">${formatINR(item.sVal)}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">LTCG</span></td>
+                    <td class="p-3 font-bold text-slate-900 dark:text-slate-100">${formatINR(item.tax)}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="removePortfolioRow(${index})" class="text-rose-600 hover:text-rose-700 dark:text-rose-400"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            calculatePortfolioTotal();
+        }
+
+        function addPortfolioRow() {
+            portfolioData.push({
+                id: Date.now(),
+                desc: "Commercial Office / Asset",
+                cat: "Real Estate",
+                pFY: "2015-16",
+                sFY: "2026-27",
+                pCost: 2500000,
+                sVal: 6000000,
+                isLTCG: true,
+                tax: 280000
+            });
+            renderPortfolioTable();
+        }
+
+        function removePortfolioRow(index) {
+            portfolioData.splice(index, 1);
+            renderPortfolioTable();
+        }
+
+        function calculatePortfolioTotal() {
+            const total = portfolioData.reduce((acc, curr) => acc + curr.tax, 0);
+            document.getElementById('portfolioTotalTax').textContent = formatINR(total);
+        }
+
+        // Corrected Loss Simulator Logic
+        function runLossSimulator() {
+            const stcg = parseFloat(document.getElementById('lossInputSTCG').value) || 0;
+            const ltcg = parseFloat(document.getElementById('lossInputLTCG').value) || 0;
+            const bfSTCL = parseFloat(document.getElementById('lossInputBFSTCL').value) || 0;
+            const bfLTCL = parseFloat(document.getElementById('lossInputBFLTCL').value) || 0;
+
+            let curSTCL = stcg < 0 ? Math.abs(stcg) : 0;
+            let curSTCG = stcg > 0 ? stcg : 0;
+
+            let curLTCL = ltcg < 0 ? Math.abs(ltcg) : 0;
+            let curLTCG = ltcg > 0 ? ltcg : 0;
+
+            // Step 1: Intra-head set off
+            let netSTCG = Math.max(0, curSTCG - curSTCL);
+            let unadjustedSTCL = curSTCL > curSTCG ? (curSTCL - curSTCG) : 0;
+
+            let netLTCG = Math.max(0, curLTCG - curLTCL);
+            let unadjustedLTCL = curLTCL > curLTCG ? (curLTCL - curLTCG) : 0;
+
+            // Step 2: Inter-head set off (Current STCL against Current LTCG)
+            if (unadjustedSTCL > 0 && netLTCG > 0) {
+                const absorbed = Math.min(unadjustedSTCL, netLTCG);
+                netLTCG -= absorbed;
+                unadjustedSTCL -= absorbed;
+            }
+
+            // Step 3: Brought Forward Losses (B/F LTCL against remaining LTCG)
+            let remBFLTCL = bfLTCL;
+            if (remBFLTCL > 0 && netLTCG > 0) {
+                const absorbed = Math.min(remBFLTCL, netLTCG);
+                netLTCG -= absorbed;
+                remBFLTCL -= absorbed;
+            }
+
+            // Step 4: Brought Forward STCL against remaining STCG, then LTCG
+            let remBFSTCL = bfSTCL;
+            if (remBFSTCL > 0 && netSTCG > 0) {
+                const absorbed = Math.min(remBFSTCL, netSTCG);
+                netSTCG -= absorbed;
+                remBFSTCL -= absorbed;
+            }
+            if (remBFSTCL > 0 && netLTCG > 0) {
+                const absorbed = Math.min(remBFSTCL, netLTCG);
+                netLTCG -= absorbed;
+                remBFSTCL -= absorbed;
+            }
+
+            const totalCarryForward = unadjustedSTCL + unadjustedLTCL + remBFSTCL + remBFLTCL;
+
+            document.getElementById('resTaxableSTCG').textContent = formatINR(netSTCG);
+            document.getElementById('resTaxableLTCG').textContent = formatINR(netLTCG);
+            document.getElementById('resCarryForwardLoss').textContent = formatINR(totalCarryForward);
+        }
+
+        function formatINR(val) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                maximumFractionDigits: 0
+            }).format(val || 0);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('singleCalcChart').getContext('2d');
+            singleChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Acquisition Cost', 'Net Taxable Gain', 'Exemptions', 'Tax Payable'],
+                    datasets: [{
+                        data: [1, 1, 1, 1],
+                        backgroundColor: ['#2563eb', '#38bdf8', '#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                font: { size: 10, family: 'Plus Jakarta Sans' } 
+                            } 
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+        }
+
+        function updateChart(cost, gain, exempt, tax) {
+            if (!singleChart) return;
+            singleChart.data.datasets[0].data = [
+                Math.max(0, cost),
+                Math.max(0, gain),
+                Math.max(0, exempt),
+                Math.max(0, tax)
+            ];
+            singleChart.update();
+        }
+
+        // Export Word Audit Report Generator Function
+        function exportWordReport() {
+            const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            const assetCategorySelect = document.getElementById('assetCategory');
+            const assetCategory = assetCategorySelect.options[assetCategorySelect.selectedIndex].text;
+            
+            const purchaseFY = document.getElementById('purchaseFY').value;
+            const saleFY = document.getElementById('saleFY').value;
+            const holdingHorizon = document.getElementById('holdingPeriodText').innerText.replace('Holding Horizon: ', '');
+            const holdingNature = document.getElementById('holdingNatureBadge').innerText;
+            
+            const grossSale = document.getElementById('ledgerGrossSale').innerText;
+            const transferExp = document.getElementById('ledgerTransferExp').innerText;
+            const netConsideration = document.getElementById('ledgerNetConsideration').innerText;
+            const costLabel = document.getElementById('ledgerCostLabel').innerText;
+            const acquisitionCost = document.getElementById('ledgerAcquisitionCost').innerText;
+            const improvementCost = document.getElementById('ledgerImprovementCost').innerText;
+            const grossGain = document.getElementById('ledgerGrossGain').innerText;
+            const exemptions = document.getElementById('ledgerTotalExemptions').innerText;
+            const taxableGain = document.getElementById('ledgerTaxableGain').innerText;
+            const finalTax = document.getElementById('finalTaxDisplay').innerText;
+            const effectiveRate = document.getElementById('effectiveRateDisplay').innerText;
+            
+            const dualRegimeCard = document.getElementById('dualRegimeCard');
+            let dualRegimeContent = '';
+            
+            if (!dualRegimeCard.classList.contains('hidden')) {
+                const oldTax = document.getElementById('oldRegimeTaxText').innerText;
+                const oldIndexedCost = document.getElementById('oldRegimeIndexedCostText').innerText;
+                const newTax = document.getElementById('newRegimeTaxText').innerText;
+                const newPlainGain = document.getElementById('newRegimeGainText').innerText;
+                const recommendation = document.getElementById('recommendationText').innerText;
+                
+                dualRegimeContent = `
+                    <div style="background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 20px;">
+                        <h3 style="color: #1e3a8a; font-size: 14pt; margin-top: 0;">Pre-July 2024 Dual-Regime Analysis (Sec 48 Grandfathering)</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background-color: #e2e8f0;">
+                                <th style="padding: 8px; border: 1px solid #cbd5e1; text-align: left;">Regime</th>
+                                <th style="padding: 8px; border: 1px solid #cbd5e1; text-align: left;">Base / Indexed Figure</th>
+                                <th style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">Estimated Tax</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #cbd5e1;">Old Regime (20% + CII Indexation)</td>
+                                <td style="padding: 8px; border: 1px solid #cbd5e1;">${oldIndexedCost}</td>
+                                <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">${oldTax}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #cbd5e1;">New Regime (12.5% Flat Rate)</td>
+                                <td style="padding: 8px; border: 1px solid #cbd5e1;">${newPlainGain}</td>
+                                <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">${newTax}</td>
+                            </tr>
+                        </table>
+                        <p style="color: #15803d; font-weight: bold; margin-bottom: 0; margin-top: 12px;">Recommendation: ${recommendation}</p>
+                    </div>
+                `;
+            }
+
+            const htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>Capital Gains Audit Summary Report</title>
+                    <style>
+                        body { font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.5; }
+                        h1 { color: #1e3a8a; font-size: 20pt; margin-bottom: 5px; }
+                        h2 { color: #2563eb; font-size: 14pt; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin-top: 20px; }
+                        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        .header-table td { padding: 4px 0; }
+                        .summary-box { background-color: #2563eb; color: #ffffff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+                        .summary-box table { width: 100%; color: #ffffff; }
+                        .ledger-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        .ledger-table th, .ledger-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+                        .ledger-table th { background-color: #f8fafc; text-align: left; font-weight: bold; color: #475569; }
+                        .highlight-row { background-color: #eff6ff; font-weight: bold; }
+                        .footer { margin-top: 30px; font-size: 9pt; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 10px; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Capital Gains Tax Audit Summary Report</h1>
+                    <p style="color: #64748b; margin-top: 0;">Generated on: ${dateStr} | Statutory Compliance: Income-tax Act, 1961 (Finance Act 2024)</p>
+                    
+                    <hr style="border: none; border-top: 1px solid #2563eb; margin-bottom: 20px;" />
+
+                    <h2>1. Transaction Overview</h2>
+                    <table class="header-table">
+                        <tr><td><strong>Asset Category:</strong> ${assetCategory}</td><td><strong>Holding Nature:</strong> ${holdingNature}</td></tr>
+                        <tr><td><strong>Financial Year of Acquisition:</strong> FY ${purchaseFY}</td><td><strong>Holding Horizon:</strong> ${holdingHorizon}</td></tr>
+                        <tr><td><strong>Financial Year of Sale/Transfer:</strong> FY ${saleFY}</td><td><strong>Assessment Year:</strong> AY 2027-28</td></tr>
+                    </table>
+
+                    <div class="summary-box">
+                        <table>
+                            <tr>
+                                <td style="font-size: 12pt; text-transform: uppercase; font-weight: bold;">Net Capital Gains Tax Liability</td>
+                                <td style="text-align: right; font-size: 20pt; font-weight: bold;">${finalTax}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 10pt; opacity: 0.9;">Includes Statutory Surcharge + 4% Health & Education Cess</td>
+                                <td style="text-align: right; font-size: 10pt; font-weight: bold;">${effectiveRate}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <h2>2. Calculation Ledger Breakdown</h2>
+                    <table class="ledger-table">
+                        <thead>
+                            <tr>
+                                <th>Particulars</th>
+                                <th style="text-align: right;">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Gross Sale Consideration</td><td style="text-align: right;">${grossSale}</td></tr>
+                            <tr><td>Less: Transfer & Brokerage Expenses</td><td style="text-align: right;">${transferExp}</td></tr>
+                            <tr class="highlight-row"><td>Net Sale Consideration</td><td style="text-align: right;">${netConsideration}</td></tr>
+                            <tr><td>Less: ${costLabel}</td><td style="text-align: right;">${acquisitionCost}</td></tr>
+                            <tr><td>Less: Cost of Improvement</td><td style="text-align: right;">${improvementCost}</td></tr>
+                            <tr class="highlight-row"><td>Gross Capital Gain / (Loss)</td><td style="text-align: right;">${grossGain}</td></tr>
+                            <tr><td>Less: Exemptions Claimed (Sec 54 / 54F / 54EC / CGAS)</td><td style="text-align: right;">${exemptions}</td></tr>
+                            <tr style="background-color: #f1f5f9; font-weight: bold; font-size: 12pt;">
+                                <td>Net Taxable Capital Gain</td>
+                                <td style="text-align: right; color: #2563eb;">${taxableGain}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    ${dualRegimeContent}
+
+                    <h2>3. Audit & Statutory Compliance Notes</h2>
+                    <ul>
+                        <li><strong>Calculations Framework:</strong> Prepared in strict accordance with Section 45, Section 48, Section 54 series, and Section 112 / 112A provisions of the Income-tax Act, 1961.</li>
+                        <li><strong>Exemption Verification:</strong> Taxpayers claiming exemptions under Sec 54 / 54F / 54EC must ensure compliance with deposit timelines and maximum statutory caps.</li>
+                        <li><strong>Record Maintenance:</strong> Purchase deeds, improvement vouchers, and transfer expense proofs should be retained for audit trail purposes.</li>
+                    </ul>
+
+                    <div class="footer">
+                        Capital Gains & Indexation Suite • Advanced ITT Presentation • Generated for Audit Summary
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword'
+            });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Capital_Gains_Audit_Report_${dateStr.replace(/ /g, '_')}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
